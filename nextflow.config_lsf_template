@@ -1,0 +1,42 @@
+root_dir = <path to the working directory (other than Nextflow's)>
+
+params {
+    pgs = <list of PGS Score IDs, e.g. ['PGS000001','PGS000048']>
+    genebuild = <target genebuild, e.g. '38'>
+    vars_list_file_path = <path to the variants list file name, e.g. "$root_dir/vars_list.txt">
+    var_files_path = <wildcard file name to store the variant coordinates on each VCF file (i.e. chromosome), e.g. "$root_dir/vars_files/vars_chr*.txt">
+    merged_var_file_path = <file to merge the content of all the var_files_path, e.g. "$root_dir/vars_files/merged_var_file.txt">
+    no_coord_var_file_path = <path to the file listing the variants missing in the VCF files that will be searched via the Ensembl REST API, e.g. "$root_dir/vars_files/no_coord_var_file.txt">
+    var_file_path_ensembl = <path to the file containing all the variant data fetched via the Ensembl REST API, e.g. "$root_dir/vars_list_ensembl.txt">
+    sqlite_file_path = <path to the SQLite database>
+    loc_pipeline = <path to the 'scoring_files_pipeline' directory>
+    loc_score_dir = <path to the directory where the scoring files are stored, e.g. '${params.work_dir}/scorefiles/'>
+    loc_vcftools = <path to the vcftools bin file, e.g. "..../bin/vcftools">
+    loc_vcfs = <path to the 'Ensembl VCF' directory>
+    loc_filtered_vcfs = <path to the directory to store the filtered VCF files>
+    loc_variants_files = <path to the directory to store the var_files, e.g. "$root_dir/vars_files"
+
+    loc_validator = <path to the 'sum-stats-formatter' (scoring file validator) directory>
+    loc_harmonizer = <path to the 'pgs-harmonizer' directory>
+    work_dir = <path to the working data directory, e.g. '/homes/myuser/harmonisation/data/'
+    loc_varlist_dir = <path to the directory where the list of variants will be stored, e.g. '${params.work_dir}/variants/'>
+    loc_coord_dir = <path to the directory where the variant location files are stored, e.g. '${params.work_dir}/locations/'>
+    loc_score_dir = <path to the directory where the scoring files are stored, e.g. '${params.work_dir}/scorefiles/'>
+    loc_logs = <path to the directory where the log files will be stored, e.g. '${params.work_dir}/logs/'>
+    loc_coord_file = <path to the file storing the variant locations (that will be used by the pgs-harmonizer), e.g. '${loc_coord_dir}/${coord_file_name}'>
+    loc_hmoutput = <path to the directory where the harmonized scoring files will be stored, e.g. '${params.work_dir}/PGS_HmPOS/'>
+    loc_vcfs = <path to the 'Ensembl VCF' directory>
+}
+
+process {
+    queue = 'production-rh74'
+    executor = 'lsf'
+    withLabel: medium_mem {
+        memory = '4 GB'
+    }
+    withLabel: retry_increasing_mem {
+        errorStrategy = 'retry'
+        memory = {1.GB * task.attempt}
+        maxRetries = { task.exitStatus in [130,140] ? 6 : 2 }
+    }
+}
