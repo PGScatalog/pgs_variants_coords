@@ -2,6 +2,9 @@
 
 nextflow.enable.dsl=2
 
+include { update_variant_kb as UPDATE_VARIANTS_KB_1 } from './modules/variants_kb'
+include { update_variant_kb as UPDATE_VARIANTS_KB_2 } from './modules/variants_kb'
+
 def list_to_string(data_list) {
   return data_list.join(',')
 }
@@ -79,19 +82,6 @@ process merge_var2location_vcf {
 }
 
 
-process update_variants_kb {
-  input:
-    val merged_var_file
-    val sqlite_file
-  output:
-    val merged_var_file
-  script:
-  """
-  python $params.loc_pipeline/bin/update_variant_location_kb.py --merged_var_file ${merged_var_file} --sqlite_file ${sqlite_file}
-  """
-}
-
-
 process compare_vars_lists {
   input:
     val merged_var_file
@@ -113,19 +103,6 @@ process var2location_ensembl {
   script:
   """
   python $params.loc_pipeline/bin/var2location_ensembl.py --var_file ${var_file_path} --var_info_file ${params.var_file_path_ensembl} --sqlite_file ${sqlite_file} --genebuild ${params.genebuild}
-  """
-}
-
-
-process update_variants_kb_2 {
-  input:
-    val ensembl_var_file
-    val sqlite_file
-  output:
-    val ensembl_var_file
-  script:
-  """
-  python $params.loc_pipeline/bin/update_variant_location_kb.py --merged_var_file ${ensembl_var_file} --sqlite_file ${sqlite_file}
   """
 }
 
@@ -155,15 +132,15 @@ workflow {
   merge_var2location_vcf(var2location_vcf.out.toList())
 
   // Add new variants to KB
-  update_variants_kb(merge_var2location_vcf.out.merged_file,params.sqlite_file_path)
+  UPDATE_VARIANTS_KB_1(merge_var2location_vcf.out.merged_file,params.sqlite_file_path)
   
   // Look at missing variants
-  compare_vars_lists(update_variants_kb.out)
+  compare_vars_lists(UPDATE_VARIANTS_KB_1.out)
   var2location_ensembl(compare_vars_lists.out,params.sqlite_file_path)
 
   // Add new variants to KB
-  update_variants_kb_2(var2location_ensembl.out,params.sqlite_file_path)
+  UPDATE_VARIANTS_KB_2(var2location_ensembl.out,params.sqlite_file_path)
 
   // KB post-processing
-  post_processing(update_variants_kb_2.out,params.sqlite_file_path)
+  post_processing(UPDATE_VARIANTS_KB_2.out,params.sqlite_file_path)
 }
