@@ -10,6 +10,13 @@ Pipeline written to fetch and store the variants locations on different assembly
 - Install Python 3.9 or more recent and then run `pip install requirements.txt`
 - Download variants VCF files, e.g. https://ftp.ensembl.org/pub/current_variation/vcf/homo_sapiens/homo_sapiens-chr##.vcf.gz (and their indexes - .vcf.gz.csi)
 
+If you start your SQLite knowledge base (KB) from scratch, please run the following command, e.g.:
+```
+sqlite3 variant_locations_37.db < knowledge_base_schema.sql
+sqlite3 variant_locations_38.db < knowledge_base_schema.sql
+```
+Of course, you can name and place the SQLite knowledge base wherever you prefer.
+As the SQLite knowledge base can become quite big, we found that it is more convinient to have a distinct KB per genome build.
 
 ## Running pipeline
 
@@ -20,7 +27,7 @@ root_dir = <path to the working directory (other than Nextflow's)>
 params {
     pgs_num_from = <PGS ID start number, e.g. '20' for PGS000020>
     pgs_num_to = <PGS ID end number, e.g. '140' for PGS000140>
-    genebuild = <target genebuild, e.g. '38'>
+    genomebuild = <target genomebuild, e.g. '38'>
     pgs_ids_file = <name of the locally generated PGS IDs list file, e.g. "pgs_ids.txt">
     rest_api_url = <URL to the REST API server>
     vars_list_file_path = <path to the variants list file name, e.g. "$root_dir/vars_list.txt">

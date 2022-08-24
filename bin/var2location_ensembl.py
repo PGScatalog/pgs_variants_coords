@@ -58,7 +58,7 @@ def get_mappings(variant_json,varname,var_current_name):
     return mappings
 
 
-def get_variant_info(ids,genebuild):
+def get_variant_info(ids,genomebuild):
     '''
     Method to perform REST API calls to the Ensembl REST API
     > Parameters:
@@ -68,7 +68,7 @@ def get_variant_info(ids,genebuild):
     variants_data = {}
     try:
         data_ids = '","'.join(ids)
-        response = requests.post(rest_api[genebuild], headers={ "Content-Type" : "application/json"}, data='{ "ids":["'+data_ids+'"]}')
+        response = requests.post(rest_api[genomebuild], headers={ "Content-Type" : "application/json"}, data='{ "ids":["'+data_ids+'"]}')
         response_json = response.json()
         response_json_ids = response_json.keys()
         variants_found = []
@@ -110,7 +110,7 @@ def main():
     argparser.add_argument("--var_file", help='Path to the file containing the list of variant identifiers', required=True, metavar='VAR_FILE')
     argparser.add_argument("--var_info_file", help='Path to the output file containing the variants information', required=True, metavar='VAR_INFO_FILE')
     argparser.add_argument("--sqlite_file", help='Path to the SQLlite file containing the variants with coordinates already assigned', required=True, metavar='SQLITE_FILE')
-    argparser.add_argument("--genebuild", help='GRCh genebuild assembly (e.g. 37)', required=True, metavar='GENEBUILD')
+    argparser.add_argument("--genomebuild", help='GRCh genomebuild assembly (e.g. 37)', required=True, metavar='genomebuild')
 
 
     args = argparser.parse_args()
@@ -118,7 +118,7 @@ def main():
     var_file = args.var_file
     var_info_file = args.var_info_file
     sqlite_file = args.sqlite_file
-    genebuild = str(args.genebuild)
+    genomebuild = str(args.genomebuild)
 
     # Check if variants file with the remaining list of variant identifiers exists
     if not os.path.isfile(var_file):
@@ -136,7 +136,7 @@ def main():
             varname = data[0]
             vars_list.append(varname)
             if len(vars_list) == vars_per_call:
-                vars_info = get_variant_info(vars_list,genebuild)
+                vars_info = get_variant_info(vars_list,genomebuild)
                 vars_info_keys = vars_info.keys()
 
                 # Pause the script
@@ -153,7 +153,7 @@ def main():
                         missing_var_list.add(var)
                 vars_list = []
     if len(vars_list):
-        vars_info = get_variant_info(vars_list,genebuild)
+        vars_info = get_variant_info(vars_list,genomebuild)
         vars_info_keys = vars_info.keys()
         for var in vars_list:
             if var in vars_info_keys:

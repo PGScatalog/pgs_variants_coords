@@ -3,7 +3,7 @@ root_dir = <path to the working directory (other than Nextflow's)>
 params {
     pgs_num_from = <PGS ID start number, e.g. '20' for PGS000020>
     pgs_num_to = <PGS ID end number, e.g. '140' for PGS000140>
-    genebuild = <target genebuild, e.g. '38'>
+    genomebuild = <target genomebuild, e.g. '38'>
     pgs_ids_file = <name of the locally generated PGS IDs list file, e.g. "pgs_ids.txt">
     rest_api_url = <URL to the REST API server>
     vars_list_file_path = <path to the variants list file name, e.g. "$root_dir/vars_list.txt">
