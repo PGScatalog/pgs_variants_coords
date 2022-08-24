@@ -1,12 +1,16 @@
 root_dir = <path to the working directory (other than Nextflow's)>
 
 params {
-    pgs = <list of PGS Score IDs, e.g. ['PGS000001','PGS000048']>
+    pgs_num_from = <PGS ID start number, e.g. '20' for PGS000020>
+    pgs_num_to = <PGS ID end number, e.g. '140' for PGS000140>
     genebuild = <target genebuild, e.g. '38'>
+    pgs_ids_file = <name of the locally generated PGS IDs list file, e.g. "pgs_ids.txt">
+    rest_api_url = <URL to the REST API server>
     vars_list_file_path = <path to the variants list file name, e.g. "$root_dir/vars_list.txt">
     var_files_path = <wildcard file name to store the variant coordinates on each VCF file (i.e. chromosome), e.g. "$root_dir/vars_files/vars_chr*.txt">
     merged_var_file_path = <file to merge the content of all the var_files_path, e.g. "$root_dir/vars_files/merged_var_file.txt">
     no_coord_var_file_path = <path to the file listing the variants missing in the VCF files that will be searched via the Ensembl REST API, e.g. "$root_dir/vars_files/no_coord_var_file.txt">
+    missing_var_file_path = <path to the file listing the variants missing in the VCF files and the Ensembl REST API, e.g. "$root_dir/vars_files/vars_with_missing_info.txt">
     var_file_path_ensembl = <path to the file containing all the variant data fetched via the Ensembl REST API, e.g. "$root_dir/vars_list_ensembl.txt">
     sqlite_file_path = <path to the SQLite database>
     loc_pipeline = <path to the 'scoring_files_pipeline' directory>
@@ -15,6 +19,7 @@ params {
     loc_vcfs = <path to the 'Ensembl VCF' directory>
     loc_filtered_vcfs = <path to the directory to store the filtered VCF files>
     loc_variants_files = <path to the directory to store the var_files, e.g. "$root_dir/vars_files">
+    vcf_file_prefix = <file name prefix used on each VCF files, e.g. "homo_sapiens-chr">'
 }
 
 process {

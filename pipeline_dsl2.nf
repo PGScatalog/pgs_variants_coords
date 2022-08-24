@@ -1,3 +1,5 @@
+
+"pipeline_dsl2.nf" 168L, 4159C                                                                                               1,1           Top
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
@@ -5,8 +7,23 @@ nextflow.enable.dsl=2
 include { update_variant_kb as UPDATE_VARIANTS_KB_1 } from './modules/variants_kb'
 include { update_variant_kb as UPDATE_VARIANTS_KB_2 } from './modules/variants_kb'
 
-def list_to_string(data_list) {
-  return data_list.join(',')
+
+process get_pgs_ids_list {
+  input:
+    val from_id
+    val to_id
+
+  output:
+    path params.pgs_ids_file, emit: pgs_ids_list_file
+
+  script:
+  """
+  python $params.loc_pipeline/bin/get_pgs_ids_list.py \
+    --num_from $from_id \
+    --num_to $to_id \
+    --output $params.pgs_ids_file \
+    --rest_server $params.rest_api_url
+  """
 }
 
 
@@ -70,14 +87,15 @@ process var2location_vcf {
 
 
 process merge_var2location_vcf {
-  input: 
+  input:
     path variants_file_chr
-  
+
   output:
     val "${params.merged_var_file_path}", emit: merged_file
-  
+
+  script:
   """
-  cat $variants_file_chr > ${params.merged_var_file_path} 
+  cat $variants_file_chr > ${params.merged_var_file_path}
   """
 }
 
@@ -85,11 +103,13 @@ process merge_var2location_vcf {
 process compare_vars_lists {
   input:
     val merged_var_file
+
   output:
     val params.no_coord_var_file_path
+
   script:
   """
-  python $params.loc_pipeline/bin/compare_vars_lists.py --merged_var_file ${merged_var_file} --all_var_file ${params.var_file_path} --output_file ${params.no_coord_var_file_path}
+  python $params.loc_pipeline/bin/compare_vars_lists.py --merged_var_file ${merged_var_file} --all_var_file ${params.vars_list_file_path} --output_file ${params.no_coord_var_file_path}
   """
 }
 
@@ -98,8 +118,10 @@ process var2location_ensembl {
   input:
     val var_file_path
     val sqlite_file
+
   output:
     val params.var_file_path_ensembl
+
   script:
   """
   python $params.loc_pipeline/bin/var2location_ensembl.py --var_file ${var_file_path} --var_info_file ${params.var_file_path_ensembl} --sqlite_file ${sqlite_file} --genebuild ${params.genebuild}
@@ -119,12 +141,19 @@ process post_processing {
 
 
 workflow {
+  // Channels
+  pgs_from = Channel.from(params.pgs_num_from)
+  pgs_to = Channel.from(params.pgs_num_to)
+  chromosomes = Channel.of(1..22, 'X', 'Y', 'MT')
+
+  // Get list of PGS IDs
+  get_pgs_ids_list(pgs_from,pgs_to)
+  pgs_ids_list = get_pgs_ids_list.out.pgs_ids_list_file.splitText{it.strip()}
+
   // Prepare variants list and their locations
-  get_variants_list(list_to_string(params.pgs))
-  
+  get_variants_list(pgs_ids_list)
+
   // Prepare filtered VCF files
-  chromosomes = channel.of(1..22, 'X', 'Y', 'MT')
-  //chromosomes = channel.fromList(params.chromosomes)
   prepare_vcf_files(chromosomes,get_variants_list.out)
 
   // Extract data from VCF files
@@ -133,7 +162,7 @@ workflow {
 
   // Add new variants to KB
   UPDATE_VARIANTS_KB_1(merge_var2location_vcf.out.merged_file,params.sqlite_file_path)
-  
+
   // Look at missing variants
   compare_vars_lists(UPDATE_VARIANTS_KB_1.out)
   var2location_ensembl(compare_vars_lists.out,params.sqlite_file_path)
