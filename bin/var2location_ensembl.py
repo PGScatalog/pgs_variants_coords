@@ -63,6 +63,7 @@ def get_variant_info(ids,genomebuild):
     Method to perform REST API calls to the Ensembl REST API
     > Parameters:
         - ids: list of variant IDs (rsID for instance)
+        - genomebuild: target genome build (e.g. 37)
     > Return type: string (the current name of the variant)
     '''
     variants_data = {}

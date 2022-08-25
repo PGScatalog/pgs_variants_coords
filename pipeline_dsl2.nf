@@ -1,5 +1,3 @@
-
-"pipeline_dsl2.nf" 168L, 4159C                                                                                               1,1           Top
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
