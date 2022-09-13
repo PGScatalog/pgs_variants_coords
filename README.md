@@ -21,7 +21,7 @@ As the SQLite knowledge base can become quite big, we found that it is more conv
 ## Running pipeline
 
 ### Nextflow pipeline configuration (nextflow.config)
-```
+```groovy
 root_dir = <path to the working directory (other than Nextflow's)>
 
 params {
@@ -48,7 +48,7 @@ params {
 ```
 
 If it runs on LSF, here is an example about what to add to nextflow.config:
-```
+```groovy
 process {
     queue = 'short'
     executor = 'lsf'
