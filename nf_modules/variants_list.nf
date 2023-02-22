@@ -1,5 +1,5 @@
 process get_variants_list {
-  label 'medium_mem'
+  label 'retry_increasing_mem'
   input:
     val pgs_ids
 
