@@ -15,8 +15,8 @@ include { update_variant_kb as UPDATE_VARIANTS_KB_2 } from './nf_modules/variant
 
 workflow {
   // Channels
-  pgs_ids_list = channel.from(params.pgs)
-  chromosomes = Channel.of(1..22, 'X', 'Y', 'MT')
+  pgs_ids_list = channel.value(params.pgs)
+  chromosomes = channel.of(1..22, 'X', 'Y', 'MT')
 
   // Prepare variants list and their locations
   GET_VARIANTS_LIST(pgs_ids_list)
