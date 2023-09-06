@@ -90,7 +90,12 @@ def main():
 
     var_list = set()
 
-    for score_id in args.scores_ids.split(','):
+    # Prepare the list of Score IDs
+    scores_ids_list = args.scores_ids
+    for char in ('[',']',' '):
+        scores_ids_list = scores_ids_list.replace(char,'')
+
+    for score_id in scores_ids_list.split(','):
         # Scoring file
         scorefile = scores_dir+'/'+score_id+'.txt.gz'
          # Check if the Scoring file exists
