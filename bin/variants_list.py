@@ -3,6 +3,7 @@ import sqlite3
 import argparse
 import pandas as pd
 import gzip
+from variants_coords_tools import change_file_write_acces
 
 
 def read_scorefile(loc_scorefile):
@@ -60,8 +61,10 @@ def get_variants_with_coords(sqlite_file):
        rsIDs_list.add(variant[0])
     sqlite_cursor.close()
     sqlite_connection.close()
-    return rsIDs_list 
+    return rsIDs_list
 
+
+################################################################################
 
 def main():
     argparser = argparse.ArgumentParser()
@@ -126,6 +129,7 @@ def main():
     for var_id in var_list:
         file_out.write(f'{var_id}\n')
     file_out.close()
+    change_file_write_acces(var_file)
 
 
 if __name__ == '__main__':
