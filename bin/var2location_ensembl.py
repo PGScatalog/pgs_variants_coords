@@ -3,6 +3,7 @@ import argparse
 import sqlite3
 import requests
 import time
+from variants_coords_tools import change_file_write_acces
 
 
 rest_api = {
@@ -102,7 +103,7 @@ def get_variant_info(ids,genomebuild):
     except requests.exceptions.RequestException as e:  # This is the correct syntax
         print(f"Error: cant't retrieve the variant information via the Ensembl REST API: {e}")
     return variants_data
-
+    
 
 ################################################################################
 
@@ -171,6 +172,7 @@ def main():
         line = '\t'.join(var_info)
         output_var_file.write(f"{line}\n")
     output_var_file.close()
+    change_file_write_acces(var_info_file)
 
     # Write missing variants into an other text file
     sqlite_connection = sqlite3.connect(sqlite_file)

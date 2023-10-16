@@ -1,6 +1,9 @@
 import os
 import argparse
+from variants_coords_tools import change_file_write_acces
 
+
+################################################################################
 
 def main():
 
@@ -50,6 +53,8 @@ def main():
     for varname in no_coord_var_list:
         file_out.write(f'{varname}\n')
     file_out.close()
+    change_file_write_acces(no_coord_var_file)
+
 
 
 if __name__ == '__main__':

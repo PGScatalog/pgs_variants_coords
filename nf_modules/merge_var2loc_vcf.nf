@@ -7,5 +7,6 @@ process merge_var2location_vcf {
 
   """
   cat $variants_file_chr > ${params.merged_var_file_path}
+  chmod g+w ${params.merged_var_file_path}
   """
 }

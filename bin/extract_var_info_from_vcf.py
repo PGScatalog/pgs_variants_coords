@@ -1,6 +1,8 @@
 import os
 import argparse
 from cyvcf2 import VCF
+from variants_coords_tools import change_file_write_acces
+
 
 
 #---------------#
@@ -89,6 +91,8 @@ class VarList:
         for vardata in self.vardata_list:
             out.write(f'{vardata}\n')
         out.close()
+        # Change chmod to allow group write access
+        change_file_write_acces(self.output_filename)
 
 
 ################################################################################
