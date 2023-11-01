@@ -4,14 +4,13 @@ import sqlite3
 
 
 class RemoveYDuplicates:
-    var2current = {}
-    ycoords2remove = {}
+    vars_list = set()
     chr_x = 'X'
     chr_y = 'Y'
-    columns_coords_list = ['current_varname','chr','start']
-    columns_coords = ','.join(columns_coords_list)
-    sqlite_query_sel = f"SELECT {columns_coords} FROM variant_coords WHERE chr='{chr_x}' or chr='{chr_y}';"
-    sqlite_query_del = f"DELETE FROM variant_coords WHERE current_varname=? and chr='{chr_y}' and start=?;"
+    var_col = 'current_varname'
+    sqlite_query_sel = f"SELECT DISTINCT {var_col} FROM variant_coords WHERE chr='{chr_x}' AND {var_col} IN (SELECT {var_col} FROM variant_coords WHERE chr='{chr_y}');"
+    sqlite_query_del = f"DELETE FROM variant_coords WHERE current_varname=? and chr='{chr_y}';"
+
 
     def __init__(self,sqlite_file):
         self.sqlite_file = sqlite_file
@@ -26,31 +25,14 @@ class RemoveYDuplicates:
         self.sqlite_cursor.execute(self.sqlite_query_sel)
         variants = self.sqlite_cursor.fetchall()
         for data in variants:
-            current_varname = data[0]
-            chr = data[1]
-            start = data[2]
-            if current_varname in self.var2current.keys():
-                self.var2current[current_varname][chr] = start
-            else:
-                self.var2current[current_varname] = { chr: start }
-    
-
-    def filter_current_var(self):
-        for var in self.var2current.keys():
-            var_coords = self.var2current[var]
-            if self.chr_x in var_coords and self.chr_y in var_coords:
-                if var_coords[self.chr_x] == var_coords[self.chr_y]:
-                    self.ycoords2remove[var] = var_coords[self.chr_y]
-        for v in self.ycoords2remove.keys():
-            print(f"- {v}: {self.ycoords2remove[v]}")
-        print(f"COUNT: {len(self.ycoords2remove.keys())}")
+            self.vars_list.add(data[0])
+        print(f"List of variants with coordinates on both X and Y: {','.join(self.vars_list)}")
 
 
-    def remove_y_coords(self):
-         for var in self.ycoords2remove.keys():
-            start = self.ycoords2remove[var]
+    def remove_extra_y_coords(self):
+        for var in self.vars_list:
             try:
-                self.sqlite_cursor.execute(self.sqlite_query_del, (var,start))
+                self.sqlite_cursor.execute(self.sqlite_query_del, (var,))
                 self.sqlite_connection.commit()
             except sqlite3.Error as e:
                 print(f"Failed to delete record in sqlite table: {e}")
@@ -69,8 +51,7 @@ def main():
 
     current_var = RemoveYDuplicates(sqlite_file)
     current_var.get_current_var()
-    current_var.filter_current_var()
-    #current_var.remove_y_coords()
+    current_var.remove_extra_y_coords()
 
 
 if __name__ == '__main__':
